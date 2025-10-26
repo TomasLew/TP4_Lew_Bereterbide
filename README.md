@@ -1,4 +1,4 @@
-![Logo ITBA](images/logo-itba.png)
+![Logo ITBA](images/logo-itba.jpg)
 
 # TP4 BBDD, SQL y Manejo de Versiones
 

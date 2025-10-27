@@ -1,6 +1,108 @@
 # Parte 1: Bases de Datos
 *Cuando una persona acude al centro de salud, se le toma nota en una ficha con sus datos personales: nombre, fecha de nacimiento, sexo biológico y dirección (calle, número y ciudad). Esta ficha queda registrada en el archivo de pacientes del centro. Los médicos del centro también tienen su ficha, donde se registran su nombre completo, especialidad y dirección profesional. Cada vez que un médico realiza una consulta o tratamiento a un paciente, puede emitir una receta. Esta receta incluye la fecha, el nombre del paciente atendido, el médico que la emite, el medicamento o tratamiento indicado, y la enfermedad o condición que motivó la prescripción. Esta información queda registrada y organizada para facilitar tanto el seguimiento del paciente como las auditorías clínicas. Los tratamientos pueden incluir medicamentos, indicaciones como reposo o fisioterapia, y suelen tener especificaciones temporales (por ejemplo, “tomar por 5 días” o “uso indefinido”). También se registran enfermedades o diagnósticos asociados, permitiendo análisis estadísticos o seguimiento epidemiológico. El sistema busca reemplazar los registros en papel por una solución digital que permita realizar búsquedas rápidas, obtener estadísticas de distribución demográfica, sexo y especialidad, y mantener la información organizada para su integración con otros módulos médicos como historiales clínicos, turnos o recetas médicas.*
 
+## 1.
+Según su estructura esta base de datos es de tipo relacional pues ya cuenta con una estructura predefinida (presentada en la consigna) que dispone el orden fijo de cómo se asocian los datos considerados. Los mismos se acomodarán en tablas vinculadas entre sí a partir de Primary Keys (PK) y Foreign Keys (FK).
+Según su función se trata de una base de datos transaccional dado que su fin es registrar y almacenar de manera digital información diaria de la gestión del centro de salud.
+
+## 2.
+Diagrama Entidad-Relación (DER), según notación de Chen:
+![DER segun la notacion de Chen](images/diagrama_de_chen.png)
+*Figura 1. DER del ejercicio presentado segun la notación de Chen.*
+
+## 3.
+Mapeo del Modelo Relacional, según notación de Crow:
+El siguiente código fue utilizado en https://dbdiagram.io/d para diagramar el modelo descripto:
+```sql
+// Parte 1 - TP4
+
+
+Table Paciente {
+  id_paciente integer [primary key]
+  nombre_paciente varchar(100)
+  fecha_nacimiento date
+  id_sexo integer [not null] // FK 'not null' para que la relacion sea obligatoria
+  num_direcc varchar(10)
+  calle_direcc varchar(100)
+  ciudad_direcc varchar(100)
+}
+
+
+Table SexoBiologico {
+  id_sexo integer [primary key]
+  descripcion varchar(50) unique // 1:Masculino, 2:Femenino
+}
+Ref: SexoBiologico.id_sexo < Paciente.id_sexo
+
+
+Table Medico {
+  id_medico integer [primary key]
+  nombre_medico varchar(100)
+  id_especialidad integer [not null] // FK
+  num_direcc_m varchar(10)
+  calle_direcc_m varchar(100)
+  ciudad_direcc_m varchar(100)
+}
+
+
+Table Especialidad {
+  id_especialidad integer [primary key]
+  descripcion varchar(100) unique
+}
+Ref: Especialidad.id_especialidad < Medico.id_especialidad
+
+
+Table Consulta {
+  id_consulta integer [primary key]
+  fecha_consulta date
+  id_paciente integer [not null] // FK
+  id_medico integer [not null] // FK
+  diagnostico varchar // para analisis estadistico
+}
+Ref: Paciente.id_paciente < Consulta.id_paciente
+Ref: Medico.id_medico < Consulta.id_medico
+Ref: Receta.id_receta < Consulta.id_consulta // Para una receta debe haber antes una consulta, pero no necesariamente al revés
+
+
+Table Receta {
+  id_receta integer [primary key]
+  fecha_receta date
+  nombre_paciente varchar(100) [not null] // FK
+  nombre_medico varchar(100) [not null] // FK
+  id_tratamiento integer [not null] // FK
+  enfermedad  varchar
+}
+Ref: Paciente.nombre_paciente < Receta.nombre_paciente
+Ref: Medico.nombre_medico < Receta.nombre_medico
+
+
+Table Tratamiento {
+  id_tratamiento integer [primary key]
+  medicamento varchar
+  indicacion varchar
+  esp_temporal varchar // “tomar por 5 días” o “uso indefinido”
+}
+Ref: Tratamiento.id_tratamiento < Receta.id_tratamiento
+```
+
+El modelo resultante:
+![Modelo relacional ejercicio presentado](images/modelo_relacional_ej_presentado.png)
+*Figura 2. Mapeo del Modelo Relacional del ejercicio presentado.*
+
+El de la base de datos cargada en el Campus:
+![Modelo relacional base de datos](images/modelo_relacional_base_de_datos.png)
+*Figura 3. Mapeo del Modelo Relacional de la base de datos provista por la cátedra.*
+
+Luego de visualizar el mapeo de la base de datos ya cargada se concluye que la hecha manualmente siguiendo la consigna es significativamente similar a la provista.
+
+
+## 4.
+Para que una base de datos se encuentre normalizada debe cumplir con tres requisitos:
+* 1FN (Primera Forma Normal): “cada celda de la tabla puede tener un solo valor. No se admiten json ni arreglos ni ninguna otra estructura que no sea primitiva. Todas las filas deben tener el mismo número de columnas. Tiene que haber una clave primaria para cada fila.”
+* 2FN (Segunda Forma Normal): “todos los atributos deben ser totalmente dependientes de su clave primaria. No dependencias parciales.”
+* 3FN (Tercera Forma Normal): deben cumplirse simultáneamente las 1FN y 2FN. “Cada columna que no sea clave debe ser independiente de las demás columnas.”
+La base de datos estudiada no está completamente normalizada. Si bien en la mayoría de los casos se cumple la 1FN no ocurre en el caso, por ejemplo, de la dirección, tanto de paciente como de médico. Se podría ingresar “Ciudad Autónoma de Buenos Aires”, “CABA” o “Capital Federal”, correspondiendo las tres opciones a una misma realidad, pero pueden ser vistas como diferentes, evidenciando una falta de atomicidad o uniformidad de datos. Para corregir dicha irregularidad podría crearse una nueva tabla “Ciudades” con un id_ciudad que funciona como Primary Key y se vincule con las tablas “Paciente” y “Médico” como una Foreign Key, eliminando así posibles redundancias. Por otro lado, pareciera cumplirse el requisito 2FN en donde por ejemplo en la tabla recetas encontramos que al linkear con médicos, pacientes y medicamentos se realiza de manera correcta mediante Foreign Keys.
+
 
 
 # Parte 2: SQL

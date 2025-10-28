@@ -108,11 +108,13 @@ La base de datos estudiada no está completamente normalizada. Si bien en la may
 # Parte 2: SQL
 ## 1. Cuando se realizan consultas sobre la tabla paciente agrupando por ciudad los tiempos de respuesta son demasiado largos. Proponer mediante una query SQL una solución a este problema.
 ```sql
-SELECT ciudad, COUNT(*)
-FROM Pacientes
+CREATE INDEX idx_ciudad ON Pacientes(ciudad);
+SELECT ciudad, COUNT(id_paciente) AS Cantidad_pacientes
+FROM Pacientes 
 GROUP BY ciudad;
 ```
 Salida:
+
 ![Resultados 01](images/01_resultados.png)
 
 Es correcto que sumen 23 (cantidad de pacientes registrados).
@@ -131,6 +133,7 @@ FROM
 SELECT * FROM Edades_Pacientes
 ```
 Salida:
+
 ![Resultados 02](images/02_resultados.png)
 
 ## 3. La paciente, “Luciana Gómez”, ha cambiado de dirección. Antes vivía en “Avenida Las Heras 121” en “Buenos Aires”, pero ahora vive en “Calle Corrientes 500” en “Buenos Aires”. Actualizar la dirección de este paciente en la base de datos.
@@ -147,6 +150,7 @@ FROM Pacientes
 WHERE nombre = 'Luciana Gómez';
 ```
 Salida:
+
 ![Resultados 03](images/03_resultados.png)
 
 ## 4. Seleccionar el nombre y la matrícula de cada médico cuya especialidad sea identificada por el id 4.
@@ -156,6 +160,7 @@ FROM Medicos
 WHERE especialidad_id = 4;
 ``` 
 Salida:
+
 ![Resultados 04](images/04_resultados.png)
 
 ## 5. Puede pasar que haya inconsistencias en la forma en la que están escritos los nombres de las ciudades, ¿cómo se corrige esto? Agregar la query correspondiente.
@@ -179,6 +184,7 @@ WHERE ciudad IN ('Santa Fe', 'Santa fe', 'Santa Fé', 'Santa fé');
 SELECT DISTINCT ciudad FROM Pacientes;
 ``` 
 Salida:
+
 ![Resultados 05](images/05_resultados.png)
 
 ## 6. Obtener el nombre y la dirección de los pacientes que viven en Buenos Aires.
@@ -188,6 +194,7 @@ FROM Pacientes
 WHERE ciudad = 'Buenos Aires';
 ``` 
 Salida:
+
 ![Resultados 06](images/06_resultados.png)
 
 ## 7. Cantidad de pacientes que viven en cada ciudad.
@@ -198,6 +205,7 @@ FROM Pacientes
 GROUP BY ciudad;
 ``` 
 Salida:
+
 ![Resultados 07](images/07_resultados.png)
 
 Nuevamente, suman 23.
@@ -216,6 +224,7 @@ JOIN SexoBiologico s
 GROUP BY p.ciudad
 ``` 
 Salida:
+
 ![Resultados 08](images/08_resultados.png)
 
 ## 9. Obtener la cantidad de recetas emitidas por cada médico.
@@ -230,6 +239,7 @@ GROUP BY m.id_medico, m.nombre
 ORDER BY total_recetas DESC;
 ``` 
 Salida:
+
 ![Resultados 09](images/09_resultados.png)
 
 ## 10. Obtener todas las consultas médicas realizadas por el médico con ID igual a 3 durante el mes de agosto de 2024.
@@ -248,6 +258,7 @@ WHERE
     AND c.fecha BETWEEN '2024-08-01' AND '2024-08-31'
 ``` 
 Salida:
+
 ![Resultados 10](images/10_resultados.png)
 
 ## 11. Obtener el nombre de los pacientes junto con la fecha y el diagnóstico de todas las consultas médicas realizadas en agosto del 2024.
@@ -261,6 +272,7 @@ JOIN Pacientes p ON c.id_paciente = p.id_paciente
 WHERE c.fecha BETWEEN '2024-08-01' AND '2024-08-31'
 ``` 
 Salida:
+
 ![Resultados 11 1ra parte](images/11_resultados_1.png)
 ![Resultados 11 2da parte](images/11_resultados_2.png)
 
@@ -276,6 +288,7 @@ GROUP BY m.nombre
 HAVING COUNT(*) > 1;
 ``` 
 Salida:
+
 ![Resultados 12](images/12_resultados.png)
 
 ## 13. Obtener el nombre de los pacientes junto con la cantidad total de recetas que han recibido.
@@ -290,6 +303,7 @@ GROUP BY p.id_paciente, p.nombre
 ORDER BY p.id_paciente ASC;
 ``` 
 Salida:
+
 ![Resultados 13](images/13_resultados.png)
 
 ## 14. Obtener el nombre del medicamento más recetado junto con la cantidad de recetas emitidas para ese medicamento.
@@ -303,6 +317,7 @@ GROUP BY m.id_medicamento, m.nombre
 ORDER BY total_medic DESC LIMIT 1;
 ``` 
 Salida:
+
 ![Resultados 14](images/14_resultados.png)
 
 ## 15. Obtener el nombre del paciente junto con la fecha de su última consulta y el diagnóstico asociado.
@@ -323,6 +338,7 @@ WHERE c.fecha = (
 ORDER BY p.id_paciente;
 ``` 
 Salida:
+
 ![Resultados 15](images/15_resultados.png)
 
 ## 16. Obtener el nombre del médico junto con el nombre del paciente y el número total de consultas realizadas por cada médico para cada paciente, ordenado por médico y paciente.
@@ -349,6 +365,7 @@ GROUP BY 1, 2, 3, 4
 ORDER BY C.id_medico ASC, C.id_paciente ASC;
 ``` 
 Salida:
+
 ![Resultados 16](images/16_resultados.png)
 
 Nos parece innecesario mostrar las 53 filas de salida y por lo tanto mostramos estas primeras filas como salida representativa.
@@ -380,6 +397,7 @@ GROUP BY 1, 2, 3, 4, 5, 6
 ORDER BY cantidad_recetas DESC;
 ``` 
 Salida:
+
 ![Resultados 17](images/17_resultados.png)
 
 Al igual que en el ejercicio anterior nos parece innecesario mostrar la salida de las 30 filas.
@@ -396,4 +414,5 @@ GROUP BY m.id_medico, m.nombre
 ORDER BY total_pacientes DESC;
 ``` 
 Salida:
+
 ![Resultados 18](images/18_resultados.png)
